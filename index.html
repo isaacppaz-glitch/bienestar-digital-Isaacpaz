@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Isaac Paz | Bienestar Digital - Control Tu Salud Crónica</title>
+  <meta name="description" content="Información actualizada, práctica y honesta para latinos con diabetes y enfermedades crónicas.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --gold:#C9A84C; --gold-lt:#E2C97E;
+      --white:#fff; --text:rgba(255,255,255,.88);
+      --muted:rgba(255,255,255,.58); --dim:rgba(255,255,255,.32);
+      --green:#1B5E3B; --green-br:#00A651;
+      --orange:#FF6600; --orange-lt:#FF9900;
+      --wa:#25D366; --navy:#0A1F3C; --navy-lt:#112952;
+      --shopify:#96BF48;
+      --r:12px; --rl:20px;
+      --t:all 0.32s cubic-bezier(.4,0,.2,1);
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth;overflow-x:hidden}
+    body{font-family:'Inter',sans-serif;background:#070C18;color:var(--text);line-height:1.7;overflow-x:hidden}
+    img{max-width:100%;display:block;height:auto} a{text-decoration:none;color:inherit}
+
+    #bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+
+    .container{max-width:1200px;margin:0 auto;padding:0 24px;width:100%}
+    .section{padding:80px 0;width:100%;overflow-x:hidden;position:relative;z-index:1}
+
+    /* TYPOGRAPHY */
+    .stag{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);background:rgba(201,168,76,.1);padding:6px 16px;border-radius:30px;margin-bottom:16px;border:1px solid rgba(201,168,76,.18)}
+    .stitle{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;color:var(--gold-lt);line-height:1.2;margin-bottom:16px}
+    .ssub{font-size:1.05rem;color:var(--muted);max-width:680px;margin:0 auto}
+    .gline{width:60px;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-lt));border-radius:2px;margin:20px auto}
+
+    /* BUTTONS */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 28px;border-radius:50px;font-weight:700;font-size:.95rem;cursor:pointer;border:none;transition:var(--t);text-decoration:none;white-space:nowrap}
+    .btn-lg{padding:16px 36px;font-size:1rem}
+    .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:#0a1020;box-shadow:0 6px 24px rgba(201,168,76,.3)}
+    .btn-gold:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(201,168,76,.45)}
+    .btn-primary{background:linear-gradient(135deg,var(--navy),var(--navy-lt));color:#fff;border:1px solid rgba(201,168,76,.2)}
+    .btn-primary:hover{transform:translateY(-2px);filter:brightness(1.15)}
+    .btn-green{background:linear-gradient(135deg,var(--green),var(--green-br));color:#fff;box-shadow:0 6px 24px rgba(0,166,81,.25)}
+    .btn-green:hover{transform:translateY(-2px)}
+    .btn-outline-w{background:transparent;border:2px solid rgba(255,255,255,.3);color:#fff}
+    .btn-outline-w:hover{background:rgba(255,255,255,.08)}
+    .btn-donar{display:inline-flex;align-items:center;gap:10px;padding:14px 28px;border-radius:50px;font-weight:800;cursor:pointer;border:2px solid #FF6B00;background:transparent;color:#FF9500;text-shadow:0 0 10px rgba(255,107,0,.5);animation:dpulse 2.5s ease infinite;transition:var(--t);text-decoration:none;font-size:.95rem}
+    .btn-donar:hover{background:linear-gradient(135deg,#FF6B00,#FF9500);color:#fff;text-shadow:none;box-shadow:0 0 30px rgba(255,107,0,.5);transform:translateY(-2px)}
+    @keyframes dpulse{0%,100%{box-shadow:0 0 16px rgba(255,107,0,.2)}50%{box-shadow:0 0 28px rgba(255,107,0,.45),0 0 0 3px rgba(255,107,0,.08)}}
+
+    /* NAVBAR */
+    .navbar{position:fixed;top:0;left:0;right:0;z-index:9000;background:rgba(7,12,24,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(201,168,76,.1);transition:var(--t)}
+    .navbar.scrolled{background:rgba(4,8,16,.97)}
+    .nbc{max-width:1200px;margin:0 auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;height:70px;position:relative}
+    .brand{display:flex;flex-direction:column}
+    .brand-n{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:700;color:var(--gold-lt);line-height:1.1}
+    .brand-t{font-size:.65rem;color:var(--dim);letter-spacing:.15em;text-transform:uppercase}
+    .nav-links{display:flex;align-items:center;gap:6px;list-style:none}
+    .nav-links a{color:var(--muted);font-size:.88rem;font-weight:500;padding:8px 14px;border-radius:8px;transition:var(--t)}
+    .nav-links a:hover{color:var(--gold-lt);background:rgba(201,168,76,.08)}
+    .nav-donar{border:1px solid #FF6B00!important;color:#FF8C00!important;font-weight:700!important}
+    .nav-donar:hover{background:#FF6B00!important;color:#fff!important}
+    .ham{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+    .ham span{width:24px;height:2px;background:var(--gold-lt);border-radius:2px;display:block;transition:var(--t)}
+
+    /* HERO */
+    .hero{min-height:100vh;min-height:100svh;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:100px 24px 60px;text-align:center;z-index:1}
+    .hero-c{position:relative;z-index:2;max-width:820px;margin:0 auto}
+    .hero-tag{display:inline-block;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.3);color:var(--gold-lt);font-size:.78rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;padding:8px 20px;border-radius:30px;margin-bottom:28px}
+    .hero-h{font-family:'Playfair Display',serif;font-size:clamp(2.4rem,6vw,4.5rem);font-weight:800;color:#fff;line-height:1.08;margin-bottom:20px}
+    .hero-h span{color:var(--gold-lt);text-shadow:0 0 40px rgba(201,168,76,.25)}
+    .hero-p{font-size:clamp(1rem,2vw,1.2rem);color:rgba(255,255,255,.72);max-width:600px;margin:0 auto 42px;line-height:1.8}
+    .stats{display:flex;justify-content:center;gap:40px;margin-bottom:44px;flex-wrap:wrap}
+    .stat-n{display:block;font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:var(--gold-lt);line-height:1}
+    .stat-l{font-size:.73rem;color:rgba(255,255,255,.45);text-transform:uppercase;letter-spacing:.1em;margin-top:3px;display:block}
+    .hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+    /* HISTORIA */
+    .historia{background:#0A1220}
+    .hist-grid{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
+    .hist-img{border-radius:var(--rl);overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+    .hist-img img{width:100%;display:block}
+    .hist-cap{background:linear-gradient(135deg,var(--navy),var(--navy-lt));color:var(--gold-lt);font-size:.78rem;text-align:center;padding:10px 16px;font-style:italic}
+    .hist-text h2{font-family:'Playfair Display',serif;font-size:clamp(1.6rem,3vw,2.2rem);color:var(--gold-lt);margin-bottom:8px;line-height:1.2}
+    .hist-text p{color:var(--muted);margin-bottom:16px;font-size:.97rem;line-height:1.85}
+    .hist-text strong{color:var(--text)}
+    .hist-hl{background:rgba(201,168,76,.07);border-left:4px solid var(--gold);border-radius:0 var(--r) var(--r) 0;padding:20px 24px;margin:24px 0}
+    .hist-hl p{color:var(--text);font-style:italic;font-size:1rem;margin:0;font-weight:500}
+    .hist-q{background:rgba(255,255,255,.04);border:1px solid rgba(201,168,76,.15);border-radius:var(--rl);padding:26px;margin-top:22px}
+    .hist-q p{color:rgba(255,255,255,.82);font-size:1rem;font-style:italic;margin-bottom:10px;line-height:1.75}
+    .hist-author{color:var(--gold-lt);font-weight:700;font-size:.9rem}
+    .hist-close{font-weight:600;color:var(--gold-lt);font-size:1.05rem;margin-top:16px}
+
+    /* RECURSOS */
+    .recursos{background:#0D1528}
+    .rec-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+    .rec-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:var(--rl);padding:30px;transition:var(--t);display:block;text-decoration:none;color:inherit;position:relative;overflow:hidden}
+    .rec-card:hover{transform:translateY(-5px);box-shadow:0 20px 50px rgba(0,0,0,.5);border-color:rgba(201,168,76,.3)}
+    .rec-card.feat{border:2px solid rgba(201,168,76,.3);background:rgba(201,168,76,.05)}
+    .rec-ico{width:52px;height:52px;background:linear-gradient(135deg,var(--navy),var(--navy-lt));border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid rgba(201,168,76,.12)}
+    .rec-ico i{font-size:1.35rem;color:var(--gold-lt)}
+    .rec-badge{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);background:rgba(201,168,76,.08);padding:3px 10px;border-radius:20px;display:inline-block;margin-bottom:10px;border:1px solid rgba(201,168,76,.12)}
+    .rec-title{font-family:'Playfair Display',serif;font-size:1.18rem;color:var(--gold-lt);margin-bottom:8px;font-weight:700}
+    .rec-desc{font-size:.9rem;color:var(--muted);line-height:1.7;margin-bottom:18px}
+    .rec-btn{display:inline-flex;align-items:center;gap:8px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:30px;font-size:.84rem;font-weight:700;transition:var(--t);border:1px solid rgba(201,168,76,.15)}
+    .rec-btn:hover{background:var(--navy-lt);transform:translateX(3px)}
+    .rec-btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold-lt));color:#0a1020;border:none}
+
+    /* ARTICULOS */
+    .articulos{background:#0A1220}
+    .art-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
+    .art-card{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:var(--rl);overflow:hidden;transition:var(--t)}
+    .art-card:hover{transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.4);border-color:rgba(201,168,76,.18)}
+    .art-img{width:100%;height:185px;object-fit:cover;display:block}
+    .art-body{padding:20px}
+    .art-badge{display:inline-block;background:rgba(0,166,81,.14);color:#4DF093;font-size:.68rem;font-weight:700;text-transform:uppercase;padding:3px 10px;border-radius:20px;margin-bottom:10px}
+    .art-title{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold-lt);margin-bottom:8px;font-weight:700;line-height:1.35}
+    .art-excerpt{font-size:.86rem;color:var(--muted);line-height:1.65;margin-bottom:14px}
+    .art-link{color:#4DF093;font-weight:700;font-size:.86rem;display:inline-flex;align-items:center;gap:6px;transition:var(--t)}
+    .art-link:hover{gap:10px}
+
+    /* COMUNIDAD */
+    .comunidad{background:linear-gradient(160deg,#050D1E 0%,#091730 50%,#050C1A 100%)}
+    .com-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+    .com-card{background:rgba(255,255,255,.05);border:1px solid rgba(201,168,76,.16);border-radius:var(--rl);padding:30px;display:block;text-decoration:none;color:#fff;transition:var(--t)}
+    .com-card:hover{background:rgba(255,255,255,.08);transform:translateY(-4px);border-color:rgba(201,168,76,.35)}
+    .com-card.wa:hover{border-color:var(--wa)}
+    .com-card.pp:hover{border-color:#00C4FF}
+    .com-ico{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:16px;background:rgba(201,168,76,.08);color:var(--gold-lt)}
+    .com-card.wa .com-ico{background:rgba(37,211,102,.1);color:var(--wa)}
+    .com-card.pp .com-ico{background:rgba(0,156,222,.1);color:#009cde}
+    .com-title{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold-lt);margin-bottom:10px}
+    .com-card.wa .com-title{color:#4DF093}
+    .com-card.pp .com-title{color:#00C4FF}
+    .com-desc{font-size:.9rem;color:rgba(255,255,255,.6);line-height:1.7;margin-bottom:18px}
+    .com-stats{display:flex;gap:22px;margin-bottom:4px}
+    .com-stat-n{display:block;font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--gold-lt);font-weight:700;line-height:1}
+    .com-card.wa .com-stat-n{color:#4DF093}
+    .com-stat-l{font-size:.68rem;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.08em}
+    .com-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:10px;font-weight:700;font-size:.88rem;margin-top:18px;transition:var(--t)}
+    .cb-fb{background:linear-gradient(135deg,#1877F2,#0D47A1);color:#fff}
+    .cb-wa{background:linear-gradient(135deg,var(--green),var(--green-br));color:#fff}
+    .cb-pp{background:linear-gradient(135deg,#009cde,#003087);color:#fff}
+    .com-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+
+    /* TIENDA */
+    .tienda{background:linear-gradient(160deg,#040C04 0%,#0A1C0A 50%,#040C06 100%)}
+    .plat-grid{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:900px;margin:0 auto 48px}
+    .plat-card{border-radius:var(--rl);padding:38px 30px;text-align:center;transition:var(--t);display:block;text-decoration:none}
+    .p-amz{background:rgba(255,153,0,.07);border:2px solid rgba(255,153,0,.25)}
+    .p-amz:hover{border-color:var(--orange-lt);box-shadow:0 16px 50px rgba(255,153,0,.2);transform:translateY(-6px)}
+    .p-shp{background:rgba(150,191,72,.07);border:2px solid rgba(150,191,72,.25)}
+    .p-shp:hover{border-color:var(--shopify);box-shadow:0 16px 50px rgba(150,191,72,.2);transform:translateY(-6px)}
+    .p-ico{font-size:3.8rem;margin-bottom:16px;display:block}
+    .p-nm{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;margin-bottom:12px}
+    .p-amz .p-nm{color:var(--orange-lt)} .p-shp .p-nm{color:var(--shopify)}
+    .p-desc{font-size:.92rem;color:rgba(255,255,255,.62);line-height:1.65;margin-bottom:20px}
+    .p-feats{list-style:none;margin-bottom:24px;text-align:left}
+    .p-feats li{font-size:.86rem;color:rgba(255,255,255,.62);padding:4px 0;display:flex;align-items:center;gap:8px}
+    .p-feats li i{color:var(--gold-lt);font-size:.74rem}
+    .p-btn-amz{background:linear-gradient(135deg,var(--orange-lt),var(--orange));color:#fff;padding:13px 26px;border-radius:50px;font-weight:800;display:inline-flex;align-items:center;gap:8px;transition:var(--t)}
+    .p-btn-amz:hover{transform:scale(1.04);box-shadow:0 8px 24px rgba(255,102,0,.4)}
+    .p-btn-shp{background:linear-gradient(135deg,var(--shopify),#7AB02E);color:#fff;padding:13px 26px;border-radius:50px;font-weight:800;display:inline-flex;align-items:center;gap:8px;transition:var(--t)}
+    .p-btn-shp:hover{transform:scale(1.04);box-shadow:0 8px 24px rgba(150,191,72,.4)}
+    .conf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:44px}
+    .conf-item{text-align:center;padding:20px 12px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:var(--r)}
+    .conf-ico{width:44px;height:44px;margin:0 auto 10px;background:rgba(201,168,76,.08);border-radius:12px;display:flex;align-items:center;justify-content:center}
+    .conf-ico i{color:var(--gold-lt);font-size:1.05rem}
+    .conf-title{font-weight:700;color:#fff;font-size:.88rem;margin-bottom:5px}
+    .conf-desc{font-size:.76rem;color:var(--dim)}
+
+    /* DONACION */
+    .donacion{position:relative;overflow:hidden;background:#07090F;padding:90px 24px;text-align:center;z-index:1}
+    .donacion::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#FF6B00,#FF9500,#FF6B00,transparent)}
+    .donacion::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 25% 60%,rgba(255,107,0,.08) 0%,transparent 55%),radial-gradient(ellipse at 75% 30%,rgba(255,149,0,.05) 0%,transparent 50%);pointer-events:none}
+    .don-inner{position:relative;z-index:2;max-width:720px;margin:0 auto}
+    .don-eye{display:inline-flex;align-items:center;gap:8px;font-size:.73rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;color:#FF9500;margin-bottom:24px;padding:6px 18px;border:1px solid rgba(255,107,0,.28);border-radius:999px;background:rgba(255,107,0,.05)}
+    .don-h{font-family:'Playfair Display',serif;font-size:clamp(2rem,5vw,3.5rem);color:#fff;line-height:1.06;margin-bottom:18px}
+    .don-h span{color:#FF9500;text-shadow:0 0 20px rgba(255,107,0,.35)}
+    .don-p{font-size:1rem;color:rgba(255,255,255,.65);line-height:1.8;margin-bottom:16px;max-width:580px;margin-left:auto;margin-right:auto}
+    .don-p strong{color:rgba(255,255,255,.9)}
+    .don-q{border-left:3px solid #FF6B00;padding:14px 20px;margin:28px auto;max-width:540px;text-align:left;color:rgba(255,255,255,.72);font-style:italic;font-size:.95rem;line-height:1.75;background:rgba(255,107,0,.04);border-radius:0 10px 10px 0}
+    .don-impacts{display:flex;justify-content:center;gap:0;margin:36px auto;max-width:540px}
+    .d-item{padding:18px 22px;border:1px solid rgba(255,107,0,.14);background:rgba(255,255,255,.02);text-align:center;flex:1}
+    .d-item:first-child{border-radius:12px 0 0 12px} .d-item:last-child{border-radius:0 12px 12px 0}
+    .d-item+.d-item{border-left:none}
+    .d-em{font-size:1.55rem;display:block;margin-bottom:5px}
+    .d-val{font-family:'Playfair Display',serif;font-size:1.3rem;color:#FF9500;display:block}
+    .d-lbl{font-size:.68rem;color:rgba(255,255,255,.38);text-transform:uppercase;letter-spacing:.1em}
+    .d-wrap{margin:36px 0 14px;position:relative;display:inline-block}
+    .d-glow{position:absolute;inset:-10px;border-radius:60px;background:linear-gradient(135deg,#FF6B00,#FF9500,#FF6B00);background-size:200%;animation:gshift 3s ease infinite;filter:blur(20px);opacity:.5;z-index:0}
+    @keyframes gshift{0%,100%{background-position:0%}50%{background-position:100%}}
+    .d-btn{position:relative;z-index:1;display:inline-flex;align-items:center;gap:14px;background:linear-gradient(135deg,#FF6B00,#FF9500);color:#fff;font-weight:800;font-size:1.1rem;padding:20px 52px;border-radius:50px;text-decoration:none;cursor:pointer;transition:transform .2s,box-shadow .2s;box-shadow:0 8px 32px rgba(255,107,0,.38)}
+    .d-btn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 16px 48px rgba(255,107,0,.58)}
+    .d-cafe{font-size:1.5rem;animation:steam 2.5s ease infinite;display:inline-block}
+    @keyframes steam{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-4px) rotate(4deg)}}
+    .d-sub{display:block;font-size:.68rem;font-weight:600;opacity:.7;margin-top:2px}
+    .d-micro{font-size:.77rem;color:rgba(255,255,255,.28);margin-top:8px}
+    .d-micro span{color:#FF9500;font-weight:700}
+
+    /* FOOTER */
+    .footer{background:#040810;color:rgba(255,255,255,.55);padding:60px 0 0;position:relative;z-index:1}
+    .foot-inner{max-width:1200px;margin:0 auto;padding:0 24px 48px;display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px}
+    .foot-brand h3{font-family:'Playfair Display',serif;font-size:1.55rem;color:var(--gold-lt);margin-bottom:12px}
+    .foot-brand p{font-size:.87rem;line-height:1.7;color:rgba(255,255,255,.4);max-width:320px}
+    .foot-social{display:flex;gap:12px;margin-top:18px}
+    .soc{width:40px;height:40px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:10px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.45);font-size:.88rem;transition:var(--t)}
+    .soc:hover{background:var(--gold);color:#0a1020;border-color:var(--gold)}
+    .foot-col h4{color:#fff;font-size:.87rem;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:.08em}
+    .foot-col ul{list-style:none}
+    .foot-col li{margin-bottom:9px}
+    .foot-col a{color:rgba(255,255,255,.4);font-size:.86rem;transition:var(--t)}
+    .foot-col a:hover{color:var(--gold-lt);padding-left:4px}
+    .foot-bot{border-top:1px solid rgba(255,255,255,.05);padding:20px 24px;text-align:center;font-size:.77rem;color:rgba(255,255,255,.25);max-width:1200px;margin:0 auto}
+    .foot-dis{margin-top:7px;font-size:.72rem;line-height:1.6;max-width:800px;margin-left:auto;margin-right:auto}
+
+    /* FLOAT */
+    .floats{position:fixed;bottom:24px;right:24px;display:flex;flex-direction:column;gap:12px;z-index:999}
+    .fbtn{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.2rem;cursor:pointer;transition:var(--t);box-shadow:0 4px 20px rgba(0,0,0,.4);border:none;text-decoration:none;color:#fff}
+    .f-wa{background:var(--wa)} .f-wa:hover{transform:scale(1.1)}
+    .f-up{background:var(--navy);opacity:0;pointer-events:none} .f-up.on{opacity:1;pointer-events:auto}
+    .f-don{background:linear-gradient(135deg,#FF6B00,#FF9500);color:#fff;font-weight:800;width:auto;padding:0 18px;height:52px;border-radius:30px;display:flex;align-items:center;gap:8px;white-space:nowrap;animation:dpulse 2.5s ease infinite}
+    .f-don:hover{transform:scale(1.06);color:#fff} .f-don span{font-size:.82rem;font-weight:800;letter-spacing:.04em}
+
+    /* FADE - content always visible, animation is enhancement */
+    .fade{opacity:1;transform:none;transition:opacity .6s ease,transform .6s ease}
+    .js-ready .fade{opacity:0;transform:translateY(22px)}
+    .js-ready .fade.in{opacity:1;transform:translateY(0)}
+
+    /* ── MOBILE ── */
+    @media(max-width:768px){
+      /* Navbar */
+      .nbc{padding:0 16px}
+      .nav-links{
+        display:none;flex-direction:column;
+        position:fixed;top:70px;left:0;right:0;
+        background:rgba(4,8,16,.98);padding:12px;gap:2px;
+        border-bottom:1px solid rgba(201,168,76,.12);
+        -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+        z-index:9001
+      }
+      .nav-links.open{display:flex}
+      .nav-links a{padding:12px 16px;border-radius:8px;font-size:.92rem;min-height:44px;display:flex;align-items:center}
+      .ham{display:flex;z-index:9001;position:relative;-webkit-tap-highlight-color:transparent;cursor:pointer}
+
+      /* Hero */
+      .hero{padding:80px 16px 44px;min-height:100vh}
+      .hero-tag{font-size:.68rem;letter-spacing:.08em;padding:7px 14px;white-space:normal;word-break:break-word}
+      .hero-h{font-size:1.85rem;line-height:1.12}
+      .hero-p{font-size:.93rem;line-height:1.7;margin-bottom:30px}
+      .stats{gap:0;justify-content:space-around;width:100%;padding:0 8px;margin-bottom:32px}
+      .stat-n{font-size:1.7rem}
+      .stat-l{font-size:.65rem}
+      .hero-btns{flex-direction:column;align-items:stretch;gap:10px;padding:0 8px}
+      .hero-btns .btn{width:100%;justify-content:center;padding:15px 20px;min-height:52px}
+
+      /* Sections */
+      .section{padding:48px 0}
+      .container{padding:0 16px}
+      .stitle{font-size:1.45rem;line-height:1.25}
+      .ssub{font-size:.93rem}
+
+      /* Historia */
+      .hist-grid{grid-template-columns:1fr;gap:24px}
+      .hist-text h2{font-size:1.45rem}
+      .hist-text p{font-size:.93rem}
+      .hist-hl p{font-size:.93rem}
+      .hist-q p{font-size:.92rem}
+      .hist-close{font-size:.97rem}
+      .hist-btns{flex-direction:column;gap:10px}
+      .hist-btns .btn, .hist-btns .btn-donar{width:100%;justify-content:center;text-align:center;min-height:50px;padding:14px 20px}
+
+      /* Recursos */
+      .rec-grid{grid-template-columns:1fr;gap:12px}
+      .rec-card{padding:24px 18px}
+      .rec-title{font-size:1.08rem}
+      .rec-desc{font-size:.87rem}
+      .rec-btn{min-height:44px;justify-content:center;width:100%;text-align:center}
+
+      /* Articulos */
+      .art-grid{grid-template-columns:1fr;gap:14px}
+      .art-img{height:160px}
+      .art-body{padding:16px}
+      .art-title{font-size:.95rem}
+      .art-excerpt{font-size:.84rem}
+
+      /* Comunidad */
+      .com-grid{grid-template-columns:1fr;gap:14px}
+      .com-card{padding:22px 16px}
+      .com-title{font-size:1.15rem}
+      .com-desc{font-size:.88rem}
+      .com-btn{min-height:48px;font-size:.88rem}
+      .com-stat-n{font-size:1.5rem}
+
+      /* Tienda */
+      .plat-grid{grid-template-columns:1fr;gap:14px;max-width:100%;margin-bottom:28px}
+      .plat-card{padding:26px 18px}
+      .p-ico{font-size:3rem}
+      .p-nm{font-size:1.5rem}
+      .p-desc{font-size:.87rem}
+      .p-feats li{font-size:.83rem}
+      .p-btn-amz,.p-btn-shp{width:100%;justify-content:center;min-height:48px}
+      .conf-grid{grid-template-columns:repeat(2,1fr);gap:8px;margin-top:28px}
+      .conf-item{padding:14px 8px}
+      .conf-title{font-size:.82rem}
+      .conf-desc{font-size:.72rem}
+
+      /* Donación */
+      .donacion{padding:52px 16px}
+      .don-eye{font-size:.65rem;letter-spacing:.1em;padding:6px 14px}
+      .don-h{font-size:1.8rem;line-height:1.1}
+      .don-p{font-size:.9rem;line-height:1.75}
+      .don-q{font-size:.88rem;padding:12px 14px;margin:20px auto}
+      .don-impacts{flex-direction:column;margin:24px auto}
+      .d-item{
+        border-radius:0!important;
+        border:1px solid rgba(255,107,0,.14)!important;
+        padding:14px 18px;
+        display:flex;align-items:center;gap:14px;text-align:left
+      }
+      .d-item:first-child{border-radius:12px 12px 0 0!important}
+      .d-item:last-child{border-radius:0 0 12px 12px!important}
+      .d-em{font-size:1.8rem;margin-bottom:0;min-width:36px}
+      .d-val{font-size:1.15rem}
+      .d-lbl{font-size:.65rem}
+      .d-wrap{margin:28px 0 12px;width:100%;display:flex;justify-content:center}
+      .d-btn{padding:16px 22px;font-size:.97rem;width:100%;max-width:320px;justify-content:center}
+      .d-sub{display:none}
+      .d-glow{display:none}
+
+      /* Float buttons - keep donar visible, minimize others */
+      .floats{bottom:16px;right:12px;gap:8px}
+      .f-don{height:46px;padding:0 14px;font-size:.9rem}
+      .f-don span{font-size:.72rem}
+      .fbtn{width:46px;height:46px;font-size:1rem}
+
+      /* Footer */
+      .foot-inner{grid-template-columns:1fr;gap:24px;padding:0 16px 32px}
+      .foot-brand p{max-width:100%}
+      .foot-bot{padding:16px;font-size:.72rem}
+      .foot-dis{font-size:.68rem}
+    }
+
+    @media(max-width:380px){
+      .hero-h{font-size:1.6rem}
+      .hero-tag{font-size:.62rem;letter-spacing:.05em}
+      .stitle{font-size:1.3rem}
+      .don-h{font-size:1.55rem}
+      .f-don span{display:none}
+      .f-don{width:46px;padding:0;border-radius:50%;justify-content:center;font-size:1.2rem}
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="nbc">
+    <a href="#inicio" class="brand">
+      <span class="brand-n">Isaac Paz</span>
+      <span class="brand-t">Bienestar Digital</span>
+    </a>
+    <ul class="nav-links" id="navMenu">
+      <li><a href="#historia">Mi Historia</a></li>
+      <li><a href="#recursos">Recursos</a></li>
+      <li><a href="#comunidad">Comunidad</a></li>
+      <li><a href="#tienda">Tienda</a></li>
+      <li><a href="#donacion" class="nav-donar">☕ Donar</a></li>
+    </ul>
+    <div class="ham" id="ham"><span></span><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="inicio">
+  <div class="hero-c">
+    <span class="hero-tag">✨ Para Latinos con Diabetes y Enfermedades Crónicas</span>
+    <h1 class="hero-h">Toma el Control de tu <span>Salud Crónica</span></h1>
+    <p class="hero-p">Información actualizada, práctica y honesta para latinos. Sin promesas vacías — solo ciencia, experiencia real y comunidad.</p>
+    <div class="stats">
+      <div><span class="stat-n">4,300+</span><span class="stat-l">Seguidores</span></div>
+      <div><span class="stat-n">5</span><span class="stat-l">Guías Gratis</span></div>
+      <div><span class="stat-n">24/7</span><span class="stat-l">Comunidad Activa</span></div>
+    </div>
+    <div class="hero-btns">
+      <a href="#recursos" class="btn btn-gold btn-lg"><i class="fas fa-book-open"></i> Ver Recursos Gratis</a>
+      <a href="#historia" class="btn btn-outline-w btn-lg"><i class="fas fa-user"></i> Mi Historia</a>
+    </div>
+  </div>
+</section>
+
+<!-- HISTORIA -->
+<section class="section historia" id="historia">
+  <div class="container">
+    <div class="hist-grid fade">
+      <div>
+        <div class="hist-img">
+          <img src="isaac-historia.jpg" alt="Isaac Paz - Bienestar Digital" loading="eager">
+          <div class="hist-cap">así comenzó Bienestar Digital</div>
+        </div>
+      </div>
+      <div class="hist-text">
+        <span class="stag">Mi Historia</span>
+        <h2>De Paciente a Guía: El Camino de Isaac Paz</h2>
+        <div class="gline" style="margin-left:0"></div>
+        <p>Todo comenzó cuando el diagnóstico de diabetes llegó a mi familia. Ese momento que cambia todo: las preguntas sin respuesta, la confusión con tanta información contradictoria, y el sentimiento de estar solo en este camino.</p>
+        <p>Los médicos hacían su mejor esfuerzo, pero el tiempo de consulta era limitado. Las instrucciones genéricas no se adaptaban a nuestra realidad como latinos. Y lo peor: mucha información en internet era más marketing que ciencia.</p>
+        <div class="hist-hl">
+          <p><i class="fas fa-quote-left" style="color:var(--gold);margin-right:8px"></i>Decidí investigar por mi cuenta. Estudiar cada artículo científico, cada nuevo tratamiento, cada enfoque nutricional. No para vender nada, sino para entender de verdad.</p>
+        </div>
+        <p>Hoy, <strong>Bienestar Digital</strong> es el resultado de ese viaje. Un espacio donde comparto lo que he aprendido: información actualizada, práctica y honesta. Sin promesas milagrosas. Solo ciencia, experiencia y comunidad.</p>
+        <div class="hist-q">
+          <p>"¡Muchas gracias a ti! No sabes lo mucho que me motiva leer eso. Mi mayor alegría es saber que esta información te ayuda a cuidar lo más valioso que tienes: tu salud. ¡Un abrazo fuerte! ✨🙏"</p>
+          <div class="hist-author">— Isaac Paz, fundador de Bienestar Digital</div>
+        </div>
+        <p class="hist-close">Porque todos merecemos información clara para tomar decisiones informadas sobre nuestra salud.</p>
+        <div class="hist-btns" style="display:flex;gap:12px;flex-wrap:wrap;margin-top:24px">
+          <a href="#comunidad" class="btn btn-primary"><i class="fas fa-users"></i> Únete a la Comunidad</a>
+          <a href="#donacion" class="btn-donar"><i class="fas fa-heart"></i> Apoya esta Misión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RECURSOS -->
+<section class="section recursos" id="recursos">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:54px" class="fade">
+      <span class="stag">Recursos</span>
+      <h2 class="stitle">Todo lo que Necesitas para Empezar</h2>
+      <div class="gline"></div>
+      <p class="ssub">Guías gratuitas, artículos, herramientas y comunidad. Todo pensado para ti y tu familia.</p>
+    </div>
+    <div class="rec-grid">
+      <div class="rec-card feat fade">
+        <div class="rec-ico"><i class="fas fa-book-open"></i></div>
+        <span class="rec-badge">⭐ Guías Gratuitas</span>
+        <h3 class="rec-title">Página de Recursos Gratis</h3>
+        <p class="rec-desc">Descarga nuestras 5 guías prácticas sobre diabetes, prediabetes, alimentación, salud dental y snacks. Sin registro, sin costo — en isaac-paz.com.</p>
+        <a href="https://isaac-paz.com" target="_blank" class="rec-btn rec-btn-gold"><i class="fas fa-download"></i> Ver Guías Gratis</a>
+      </div>
+      <div class="rec-card fade">
+        <div class="rec-ico" style="background:linear-gradient(135deg,#0d2518,#091a10);border-color:rgba(0,255,204,.18)"><i class="fas fa-star" style="color:#00ffcc"></i></div>
+        <span class="rec-badge" style="color:#00ffcc;background:rgba(0,255,204,.07);border-color:rgba(0,255,204,.18)">⚡ Premium</span>
+        <h3 class="rec-title" style="color:#00ffcc">Contenido Premium</h3>
+        <p class="rec-desc">Guías avanzadas, planes personalizados, webinars con expertos. Disponible en isaac-paz.com — lo mejor está por venir.</p>
+        <a href="https://isaac-paz.com" target="_blank" class="rec-btn" style="background:linear-gradient(135deg,#00ffcc,#00c8ff);color:#000;border:none"><i class="fas fa-rocket"></i> Ver Contenido Premium</a>
+      </div>
+      <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="rec-card fade">
+        <div class="rec-ico"><i class="fas fa-newspaper"></i></div>
+        <span class="rec-badge">Contenido Semanal</span>
+        <h3 class="rec-title">Artículos & Blog</h3>
+        <p class="rec-desc">Contenido nuevo cada semana con información actualizada, estudios recientes y consejos aplicables para tu día a día en Facebook.</p>
+        <span class="rec-btn"><i class="fab fa-facebook-f"></i> Ver en Facebook</span>
+      </a>
+      <a href="#comunidad" class="rec-card fade">
+        <div class="rec-ico"><i class="fas fa-users"></i></div>
+        <span class="rec-badge">Comunidad</span>
+        <h3 class="rec-title">Grupo de Apoyo</h3>
+        <p class="rec-desc">Únete a nuestra comunidad en Facebook y WhatsApp. Comparte experiencias y recibe apoyo de personas que entienden exactamente lo que estás viviendo.</p>
+        <span class="rec-btn"><i class="fas fa-arrow-right"></i> Unirse Gratis</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ARTICULOS -->
+<section class="section articulos" id="articulos">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:50px" class="fade">
+      <span class="stag">Blog & Artículos</span>
+      <h2 class="stitle">Información Actualizada Cada Semana</h2>
+      <div class="gline"></div>
+      <p class="ssub">Artículos basados en ciencia, escritos en lenguaje claro. Consejos prácticos que puedes aplicar hoy mismo.</p>
+    </div>
+    <div class="art-grid">
+      <div class="art-card fade">
+        <img src="https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?w=800&q=80" alt="" class="art-img" loading="lazy">
+        <div class="art-body">
+          <span class="art-badge">Diabetes</span>
+          <h3 class="art-title">Lo Que Nunca Te Dijeron Sobre el Azúcar en Sangre</h3>
+          <p class="art-excerpt">Los números en tu glucómetro cuentan una historia más compleja. Descubre qué significan realmente.</p>
+          <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="art-link">Leer más <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="art-card fade">
+        <img src="https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80" alt="" class="art-img" loading="lazy">
+        <div class="art-body">
+          <span class="art-badge">Nutrición</span>
+          <h3 class="art-title">Alimentación Anti-inflamatoria para Latinos</h3>
+          <p class="art-excerpt">No tienes que renunciar a tus comidas favoritas. Aprende a adaptar recetas tradicionales para reducir la inflamación.</p>
+          <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="art-link">Leer más <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+      <div class="art-card fade">
+        <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&q=80" alt="" class="art-img" loading="lazy">
+        <div class="art-body">
+          <span class="art-badge">Ejercicio</span>
+          <h3 class="art-title">Ejercicio Inteligente con Diabetes: Guía Completa</h3>
+          <p class="art-excerpt">Descubre qué tipos de ejercicio son mejores y cómo monitorear tu glucosa durante la actividad.</p>
+          <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="art-link">Leer más <i class="fas fa-arrow-right"></i></a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:42px" class="fade">
+      <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="btn btn-lg" style="background:linear-gradient(135deg,#1877F2,#0D47A1);color:#fff"><i class="fab fa-facebook-f"></i> Seguir en Facebook</a>
+    </div>
+  </div>
+</section>
+
+<!-- COMUNIDAD -->
+<section class="section comunidad" id="comunidad">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:50px" class="fade">
+      <span class="stag">Comunidad</span>
+      <h2 class="stitle">No Estás Solo en Este Camino</h2>
+      <div class="gline"></div>
+      <p class="ssub" style="color:rgba(255,255,255,.58)">Únete a miles de personas que, como tú, están tomando el control de su salud.</p>
+    </div>
+    <div class="com-grid">
+      <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="com-card fade">
+        <div class="com-ico"><i class="fab fa-facebook-f"></i></div>
+        <h3 class="com-title">Grupo Privado de Facebook</h3>
+        <p class="com-desc">Nuestra comunidad principal. Comparte experiencias, haz preguntas y aprende de otros que entienden exactamente lo que estás viviendo.</p>
+        <div class="com-stats"><div><span class="com-stat-n">4,300+</span><span class="com-stat-l">Miembros</span></div><div><span class="com-stat-n">100%</span><span class="com-stat-l">Gratis</span></div></div>
+        <div class="com-btn cb-fb"><i class="fab fa-facebook-f"></i> Unirse al Grupo</div>
+      </a>
+      <a href="https://chat.whatsapp.com/G63cumGwyTl9WCyfqQwZbX?mode=gi_t" target="_blank" class="com-card wa fade">
+        <div class="com-ico"><i class="fab fa-whatsapp"></i></div>
+        <h3 class="com-title">Canal de WhatsApp</h3>
+        <p class="com-desc">Recibe actualizaciones diarias, tips rápidos y motivación directo a tu WhatsApp. Sin spam, solo valor.</p>
+        <div class="com-stats"><div><span class="com-stat-n">24/7</span><span class="com-stat-l">Activo</span></div><div><span class="com-stat-n">Diario</span><span class="com-stat-l">Tips</span></div></div>
+        <div class="com-btn cb-wa"><i class="fab fa-whatsapp"></i> Unirse al Canal</div>
+      </a>
+      <a href="https://www.paypal.com/donate/?hosted_button_id=3AFHFQQSM45CE" target="_blank" class="com-card pp fade">
+        <div class="com-ico"><i class="fab fa-paypal"></i></div>
+        <h3 class="com-title">PayPal — Apóyame</h3>
+        <p class="com-desc">Si este contenido ha sumado valor a tu vida, puedes apoyar con lo que gustes. Cada contribución mantiene esta información gratuita para miles de familias latinas.</p>
+        <div class="com-btn cb-pp" style="margin-top:auto"><i class="fab fa-paypal"></i> Donar con PayPal</div>
+      </a>
+      <div class="com-card fade" style="text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center">
+        <div style="font-size:2.8rem;margin-bottom:12px">🌎</div>
+        <h3 class="com-title">Comunidad Latina Unida</h3>
+        <p class="com-desc">Miles de familias latinas tomando el control de su salud juntas. Tu historia también puede inspirar a otros.</p>
+        <div style="font-family:'Playfair Display',serif;font-size:2.8rem;color:var(--gold-lt);font-weight:700;line-height:1;margin:10px 0">4,300+</div>
+        <div style="font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:.1em">Personas en la comunidad</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIENDA -->
+<section class="section tienda" id="tienda">
+  <div class="container">
+    <div style="text-align:center;margin-bottom:46px" class="fade">
+      <span class="stag" style="color:var(--orange-lt);background:rgba(255,102,0,.08);border-color:rgba(255,102,0,.18)">🛒 Tienda</span>
+      <h2 class="stitle">Productos Recomendados para Tu Bienestar</h2>
+      <div class="gline"></div>
+      <p class="ssub" style="color:rgba(255,255,255,.58)">Solo productos que yo mismo usaría o recomendaría a mi familia. Sin comisiones ocultas, solo honestidad.</p>
+    </div>
+    <div class="plat-grid fade">
+      <a href="https://www.amazon.com" target="_blank" class="plat-card p-amz">
+        <span class="p-ico">📦</span>
+        <h3 class="p-nm">Amazon</h3>
+        <p class="p-desc">La plataforma de confianza con millones de productos, envíos rápidos con Prime y devoluciones sin complicaciones.</p>
+        <ul class="p-feats">
+          <li><i class="fas fa-check-circle"></i> Envío rápido con Prime en 2 días</li>
+          <li><i class="fas fa-check-circle"></i> Devoluciones fáciles en 30 días</li>
+          <li><i class="fas fa-check-circle"></i> Pago seguro garantizado</li>
+          <li><i class="fas fa-check-circle"></i> Millones de opiniones verificadas</li>
+        </ul>
+        <div class="p-btn-amz"><i class="fas fa-shopping-cart"></i> Ver Productos en Amazon</div>
+      </a>
+      <a href="https://www.shopify.com" target="_blank" class="plat-card p-shp">
+        <span class="p-ico">🛍️</span>
+        <h3 class="p-nm">Tienda Exclusiva</h3>
+        <p class="p-desc">Nuestra tienda directa con productos exclusivos, bundles especiales y descuentos que solo encontrarás aquí.</p>
+        <ul class="p-feats">
+          <li><i class="fas fa-check-circle"></i> Productos exclusivos de Bienestar Digital</li>
+          <li><i class="fas fa-check-circle"></i> Descuentos directos para la comunidad</li>
+          <li><i class="fas fa-check-circle"></i> Paquetes especiales y bundles</li>
+          <li><i class="fas fa-check-circle"></i> Soporte directo personalizado</li>
+        </ul>
+        <div class="p-btn-shp"><i class="fas fa-store"></i> Visitar Tienda Exclusiva</div>
+      </a>
+    </div>
+    <div class="conf-grid fade">
+      <div class="conf-item"><div class="conf-ico"><i class="fas fa-shield-alt"></i></div><h4 class="conf-title">Compra Segura</h4><p class="conf-desc">Plataformas de confianza mundial</p></div>
+      <div class="conf-item"><div class="conf-ico"><i class="fas fa-truck"></i></div><h4 class="conf-title">Envío Rápido</h4><p class="conf-desc">Recibe en 2-3 días con Prime</p></div>
+      <div class="conf-item"><div class="conf-ico"><i class="fas fa-undo"></i></div><h4 class="conf-title">Devolución Fácil</h4><p class="conf-desc">30 días para reembolso</p></div>
+      <div class="conf-item"><div class="conf-ico"><i class="fas fa-certificate"></i></div><h4 class="conf-title">Calidad Verificada</h4><p class="conf-desc">Productos probados y recomendados</p></div>
+    </div>
+    <div style="text-align:center;margin-top:40px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);border-radius:var(--rl);padding:32px" class="fade">
+      <h3 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold-lt);margin-bottom:10px">¿Dudas sobre qué producto elegir?</h3>
+      <p style="color:rgba(255,255,255,.55);margin-bottom:20px">Escríbeme directamente y te ayudo a elegir el más adecuado para tu situación.</p>
+      <a href="https://chat.whatsapp.com/G63cumGwyTl9WCyfqQwZbX?mode=gi_t" target="_blank" class="btn btn-green btn-lg"><i class="fab fa-whatsapp"></i> Consultar por WhatsApp</a>
+    </div>
+  </div>
+</section>
+
+<!-- DONACION -->
+<div class="donacion" id="donacion">
+  <div class="don-inner">
+    <div class="don-eye">❤️ &nbsp; Para la comunidad latina</div>
+    <h2 class="don-h">Este contenido<br><span>te llegó gratis.</span><br>¿Y si le llega a más?</h2>
+    <p class="don-p">Cada guía, cada artículo, cada respuesta tomó horas de investigación, diseño y amor.<br><strong>No hay publicidad. No hay patrocinadores. No hay precio.</strong><br>Solo una persona que cree que la salud no debería tener barreras para nuestra comunidad.</p>
+    <div class="don-q">"Quizás este contenido llegó en el momento justo. Quizás le hablas de él a tu mamá, a tu tía, a tu vecino. Si fue así, sería un honor que me ayudaras a que llegue a miles más."</div>
+    <div class="don-impacts">
+      <div class="d-item"><span class="d-em">☕</span><span class="d-val">1 café</span><span class="d-lbl">lo que tú decides</span></div>
+      <div class="d-item"><span class="d-em">📚</span><span class="d-val">nueva guía</span><span class="d-lbl">para la comunidad</span></div>
+      <div class="d-item"><span class="d-em">💛</span><span class="d-val">miles</span><span class="d-lbl">de familias</span></div>
+    </div>
+    <div class="d-wrap">
+      <div class="d-glow"></div>
+      <a href="https://www.paypal.com/donate/?hosted_button_id=3AFHFQQSM45CE" target="_blank" class="d-btn">
+        <span class="d-cafe">☕</span>
+        <span>Regálame un café<span class="d-sub">Cualquier cantidad · Voluntario · PayPal seguro</span></span>
+      </a>
+    </div>
+    <p class="d-micro">100% va a crear más contenido gratuito · <span>Sin obligación</span> · Pago seguro</p>
+    <div style="font-size:1.3rem;margin-top:26px;opacity:.35;letter-spacing:4px">❤️ ❤️ ❤️</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <h3>Isaac Paz</h3>
+      <p>Información honesta, actualizada y práctica para latinos con diabetes y enfermedades crónicas. Sin promesas vacías, solo ciencia y experiencia real.</p>
+      <div class="foot-social">
+        <a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank" class="soc"><i class="fab fa-facebook-f"></i></a>
+        <a href="https://chat.whatsapp.com/G63cumGwyTl9WCyfqQwZbX?mode=gi_t" target="_blank" class="soc"><i class="fab fa-whatsapp"></i></a>
+        <a href="https://www.paypal.com/donate/?hosted_button_id=3AFHFQQSM45CE" target="_blank" class="soc"><i class="fab fa-paypal"></i></a>
+      </div>
+    </div>
+    <div class="foot-col">
+      <h4>Recursos</h4>
+      <ul>
+        <li><a href="https://isaac-paz.com" target="_blank">Guías Gratuitas</a></li>
+        <li><a href="https://isaac-paz.com" target="_blank">Contenido Premium</a></li>
+        <li><a href="#articulos">Blog & Artículos</a></li>
+        <li><a href="#comunidad">Comunidad</a></li>
+      </ul>
+    </div>
+    <div class="foot-col">
+      <h4>Sobre Nosotros</h4>
+      <ul>
+        <li><a href="#historia">Mi Historia</a></li>
+        <li><a href="#tienda">Tienda</a></li>
+        <li><a href="https://www.paypal.com/donate/?hosted_button_id=3AFHFQQSM45CE" target="_blank">Donar ☕</a></li>
+        <li><a href="https://www.facebook.com/profile.php?id=61588545180999" target="_blank">Facebook</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="foot-bot">
+    <p>&copy; 2025 Isaac Paz – Bienestar Digital. Todos los derechos reservados.</p>
+    <p class="foot-dis" id="privacidad"><strong>Aviso:</strong> La información aquí es solo educativa y no constituye consejo médico. Consulta siempre con tu médico. Este sitio puede contener enlaces de afiliados.</p>
+  </div>
+</footer>
+
+<!-- FLOAT BUTTONS -->
+<div class="floats">
+  <a href="https://www.paypal.com/donate/?hosted_button_id=3AFHFQQSM45CE" target="_blank" class="fbtn f-don">☕ <span>DONAR</span></a>
+  <a href="https://chat.whatsapp.com/G63cumGwyTl9WCyfqQwZbX?mode=gi_t" target="_blank" class="fbtn f-wa"><i class="fab fa-whatsapp"></i></a>
+  <div class="fbtn f-up" id="btnUp"><i class="fas fa-arrow-up"></i></div>
+</div>
+
+<script>
+/* ── PREMIUM CANVAS BACKGROUND ── */
+(function(){
+  const c = document.getElementById('bgCanvas');
+  const ctx = c.getContext('2d');
+  let W, H, orbs = [], particles = [], t = 0;
+
+  function resize(){
+    W = c.width = window.innerWidth;
+    H = c.height = window.innerHeight;
+    initOrbs(); initParticles();
+  }
+
+  function initOrbs(){
+    orbs = [
+      {bx:.15,by:.18,r:.32,vx:.14,vy:.09,ph:0,   col:[20,50,120],  a:.5},
+      {bx:.82,by:.30,r:.22,vx:-.11,vy:.07,ph:2.1, col:[201,168,76], a:.14},
+      {bx:.50,by:.78,r:.36,vx:.08,vy:-.1, ph:4.3, col:[5,15,40],    a:.7},
+      {bx:.08,by:.60,r:.18,vx:.16,vy:-.08,ph:1.2, col:[27,94,59],   a:.12},
+      {bx:.90,by:.65,r:.16,vx:-.13,vy:.11,ph:3.5, col:[255,107,0],  a:.10},
+    ];
+  }
+
+  function initParticles(){
+    particles = [];
+    const n = Math.min(Math.floor(W * H / 16000), 65);
+    const cols = ['201,168,76','255,107,0','0,166,81','10,50,140'];
+    for(let i=0;i<n;i++) particles.push({
+      x:Math.random()*W, y:Math.random()*H,
+      r:Math.random()*.9+.2,
+      vx:(Math.random()-.5)*.28, vy:(Math.random()-.5)*.28,
+      a:Math.random()*.35+.08,
+      col:cols[i%cols.length]
+    });
+  }
+
+  resize();
+
+  // Pause animation when tab not visible (saves battery on mobile)
+  let running = true;
+  function drawLoop(){
+    if(!running) return;
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle='#070C18'; ctx.fillRect(0,0,W,H);
+    t += .007;
+    orbs.forEach(o=>{
+      const wobX=Math.cos(t*o.vx*7+o.ph)*W*.055;
+      const wobY=Math.sin(t*o.vy*7+o.ph)*H*.045;
+      const cx=o.bx*W+wobX, cy=o.by*H+wobY;
+      const rad=o.r*Math.max(W,H);
+      const g=ctx.createRadialGradient(cx,cy,0,cx,cy,rad);
+      const [r,gb,b]=o.col;
+      g.addColorStop(0,`rgba(${r},${gb},${b},${o.a})`);
+      g.addColorStop(.5,`rgba(${r},${gb},${b},${o.a*.3})`);
+      g.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=g;
+      ctx.beginPath();
+      ctx.ellipse(cx,cy,rad,rad*.85,t*.02,0,Math.PI*2);
+      ctx.fill();
+    });
+    ctx.strokeStyle='rgba(201,168,76,0.035)';
+    ctx.lineWidth=1;
+    const gs=64;
+    for(let x=0;x<W;x+=gs){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke()}
+    for(let y=0;y<H;y+=gs){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke()}
+    particles.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=W; if(p.x>W)p.x=0;
+      if(p.y<0)p.y=H; if(p.y>H)p.y=0;
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.col},${p.a})`;
+      ctx.fill();
+    });
+    const connDist=120;
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<connDist){
+          const alpha=(1-dist/connDist)*0.08;
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.strokeStyle=`rgba(201,168,76,${alpha})`;
+          ctx.lineWidth=0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(drawLoop);
+  }
+  document.addEventListener('visibilitychange',()=>{
+    running=!document.hidden;
+    if(running) drawLoop();
+  });
+  resize();
+  drawLoop();
+  window.addEventListener('resize',()=>{resize();});
+})();
+
+/* ── NAVBAR + SCROLL ── */
+window.addEventListener('scroll',()=>{
+  document.getElementById('navbar').classList.toggle('scrolled',scrollY>80);
+  document.getElementById('btnUp').classList.toggle('on',scrollY>300);
+});
+
+const ham=document.getElementById('ham'), menu=document.getElementById('navMenu');
+let menuOpen = false;
+
+function openMenu(){ menuOpen=true; menu.classList.add('open'); }
+function closeMenu(){ menuOpen=false; menu.classList.remove('open'); }
+function toggleMenu(){ menuOpen ? closeMenu() : openMenu(); }
+
+ham.addEventListener('click', function(e){
+  e.stopPropagation();
+  e.preventDefault();
+  toggleMenu();
+});
+
+document.querySelectorAll('#navMenu a').forEach(function(a){
+  a.addEventListener('click', function(){ closeMenu(); });
+});
+
+document.addEventListener('click', function(e){
+  if(menuOpen && !ham.contains(e.target) && !menu.contains(e.target)){ closeMenu(); }
+});
+
+document.getElementById('btnUp').addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+
+/* ── SMOOTH ANCHOR ── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const id=a.getAttribute('href'); if(id==='#')return;
+    const el=document.querySelector(id); if(!el)return;
+    e.preventDefault();
+    window.scrollTo({top:el.offsetTop-70,behavior:'smooth'});
+  });
+});
+
+/* ── FADE-IN OBSERVER ── */
+// Only enable fade animations if JS is working - prevents invisible content on slow connections
+document.body.classList.add('js-ready');
+const obs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});
+},{threshold:.04,rootMargin:'0px 0px -20px 0px'});
+document.querySelectorAll('.fade').forEach(el=>{
+  // Immediately show elements already in viewport
+  const rect=el.getBoundingClientRect();
+  if(rect.top<window.innerHeight) el.classList.add('in');
+  else obs.observe(el);
+});
+
+
+</script>
+</body>
+</html>
